@@ -1,0 +1,32 @@
+To start kong:
+	-> sudo kong migrations bootstrap
+	->ulimit -n 4096 && sudo kong start
+	
+
+To check whether kong is working
+	-> curl -i http://localhost:8001/
+
+
+Start Minio:
+	->./minio server /home/student/data                   
+
+	->Copy minio tokens and keep for future
+		Endpoint:  http://10.0.2.15:9000  http://127.0.0.1:9000    
+		AccessKey: CHKH8D13MGHGWFOZR1TD  
+		SecretKey: qD2VXhvJ3Yc3wXmmZdfsjvXwiK1xFso+ffYsWSeb 
+
+Set Up service:
+
+
+curl -i -X POST http://localhost:8001/services/ \
+    -d 'name=media' \
+    -d 'url=http://10.0.2.15:9000/tracks/'
+
+
+curl -i -X POST http://localhost:8001/routes/ \
+    -d 'hosts[]=localhost' \
+    -d 'paths[]=/media' \
+    -d 'service.id=1f4aa3c8-d87f-4b3d-9bb4-b7267ff99207'
+
+Now try http://localhost:8000/media/<file_name>
+--> file should open
