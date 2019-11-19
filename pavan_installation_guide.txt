@@ -1,0 +1,55 @@
+
+
+
+
+
+Goto Terminal and execute:
+
+sudo apt-get update
+sudo apt-get install openssl libpcre3 procps perl
+
+
+download https://bintray.com/kong/kong-deb/download_file?file_path=kong-1.4.0.trusty.amd64.deb
+
+and then 
+
+sudo dpkg -i kong-1.4.0.*.deb
+
+
+$ sudo apt install --yes postgresql
+$ sudo -u postgres psql -c "CREATE USER kong WITH ENCRYPTED PASSWORD 'kong'"
+$ sudo -u postgres psql -c 'CREATE DATABASE kong OWNER kong'
+$ sudo cp /etc/kong/kong.conf.default /etc/kong/kong.conf
+
+
+ sudoedit /etc/kong/kong.conf
+	-> search for pg_password
+	-> uncomment the line
+	-> pg_password = kong
+
+To start kong:
+	-> sudo kong migrations bootstrap
+	->ulimit -n 4096 && sudo kong start
+	
+To check whether kong is working
+	-> curl -i http://localhost:8001/
+
+
+Download and setup Minio:
+	-> wget https://dl.min.io/server/minio/release/linux-amd64/minio
+	-> chmod +x minio
+	Start Minio:
+	->./minio server /home/student/data                     (if u use /data u will get error)
+
+	->Copy minio tokens and keep for future
+		Endpoint:  http://10.0.2.15:9000  http://127.0.0.1:9000    
+		AccessKey: CHKH8D13MGHGWFOZR1TD  
+		SecretKey: qD2VXhvJ3Yc3wXmmZdfsjvXwiK1xFso+ffYsWSeb 
+	
+Open minio browser -> http://127.0.0.1:9000   
+	-> create new bucket named "track"
+	->Edit the policy for this bucket to add the prefix * as Read Only.
+
+
+
+ 
