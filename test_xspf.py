@@ -51,7 +51,7 @@ def get_track(trackID):
     track_details['title'] = track_resp[0]['track_title']
     track_details['album'] = track_resp[0]['album_title']
     track_details['creator'] = track_resp[0]['artist']
-    track_details['duration'] = track_resp[0]['length']
+    track_details['duration'] = str(track_resp[0]['length'])
     track_details['location'] = track_resp[0]['track_url']
     track_details['image'] = track_resp[0]['album_art_url']
     return track_details
