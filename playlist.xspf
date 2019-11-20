@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><playlist xmlns="http://xspf.org/ns/0/" version="1">
+  <title>All</title>
+  <info>/user?username=user_priyanka</info>
+  <creator>Priyanka</creator>
+  <annotation>This playlist contains all of my songs</annotation>
+  <trackList>
+    <track>
+      <title>Stronger</title>
+      <creator>Kanye West</creator>
+      <album>Graduation</album>
+      <duration>00005011</duration>
+      <location>/home/student/Music/tracks/Stronger.mp3</location>
+    </track>
+    <track>
+      <title>Yeah!</title>
+      <creator>Usher</creator>
+      <annotation>favorite usher song</annotation>
+      <album>Confessions</album>
+      <duration>00004010</duration>
+      <location>/home/student/Music/tracks/Yeah.mp3</location>
+    </track>
+    <track>
+      <title>I Gotta Feeling</title>
+      <creator>The Black Eyed Peas</creator>
+      <album>The E.N.D.</album>
+      <duration>00004048</duration>
+      <location>/home/student/Music/tracks/I_Gotta_Feeling.mp3</location>
+    </track>
+  </trackList>
+</playlist>
