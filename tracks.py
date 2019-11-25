@@ -83,12 +83,13 @@ def query_db(track_uuid,query,args=(),one=False):
         rv = cur.fetchall()
         cur.close()
         return(rv[0] if rv else None) if one else rv
-    # else :
-    #     for x in range(0,3):
-    #         cur = get_db(get_shard(uuid.UUID(track_uuid).int)).execute(query,args)
-    #         rv = cur.fetchall()
-    #         cur.close()
-    #         return(rv[0] if rv else None) if one else rv
+    else :
+        rv=list();
+        for x in range(0,3):
+            cur = get_db(get_shard(x)).execute(query,args)
+            rv += cur.fetchall()
+            cur.close()    
+        return(rv[0] if rv else None) if one else rv
 
 
 
@@ -186,8 +187,8 @@ def InsertTrack():
                 print("Error")
             finally:
                 if executionState:
-                    resp = jsonify(message="track inserted successfully", uuid=track_uuid, shard=get_shard(track_uuid.int))
-                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/playlist?track_uuid='+track_uuid
+                    resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex, shard=get_shard(track_uuid.int))
+                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/playlist?track_uuid='+track_uuid.hex
                     resp.status_code = 201
                     return resp
                 else:
