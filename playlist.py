@@ -47,17 +47,17 @@ def query_db(query,args=(),one=False):
 
 #TO create new playlist
 def generate_multiple_insert(all_tracks,username,playlist_title):
-    querry = "INSERT INTO playlist_tracks (username, playlist_title,track_url) VALUES"
+    querry = "INSERT INTO playlist_tracks (username, playlist_title,track_uuid) VALUES"
     value_querry = ""
-    track_url =""
+    track_uuid =""
     for track in all_tracks:
-         val = track['track_url'].split('/api/v1/resources/tracks?track_url=')
+         val = track['track_uuid'].split('/api/v1/resources/tracks?track_uuid=')
 
          if len(val) == 1:
-             track_url = val[0]
+             track_uuid = val[0]
          else:
-             track_url = val[1]
-         value_querry = value_querry + "('"+username+"','"+playlist_title+"','"+track_url+"') ,"
+             track_uuid = val[1]
+         value_querry = value_querry + "('"+username+"','"+playlist_title+"','"+track_uuid+"') ,"
     value_querry = value_querry[:-1]+';'
     querry = querry + value_querry
     #print(querry)
@@ -83,6 +83,7 @@ def InsertPlaylist():
                 query ="INSERT INTO playlist(playlist_title,username, description) VALUES('"+playlist_title+"','"+username+"','"+description+"');"
                 cur = get_db().cursor()
                 cur2 = get_db().cursor()
+
                 try:
                     cur.execute(query)
                     if(cur.rowcount >=1):
@@ -178,10 +179,10 @@ def GetAllPlaylist():
             if not results:
                 return jsonify(message="No playlist present"), 404
             else:
-                query = "SELECT track_url FROM playlist_tracks WHERE username=? AND playlist_title=?;"
+                query = "SELECT track_uuid FROM playlist_tracks WHERE username=? AND playlist_title=?;"
                 all_tracks = query_db(query, to_filter)
                 for track in all_tracks:
-                    track['track_url'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_url='+track['track_url']
+                    track['track_uuid'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track['track_uuid']
                 results[0]['all_tracks']= all_tracks
 
                 resp = jsonify(results)
