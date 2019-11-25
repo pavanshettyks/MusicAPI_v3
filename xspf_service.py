@@ -53,7 +53,7 @@ def get_track(trackUUID):
 
 
 # To prepare XSPF
-@app.route('/api/v2/resources/music.xspf',methods=['GET'])
+@app.route('/api/v1/resources/music.xspf',methods=['GET'])
 def Generate_XSPF():
     query_parameters = request.args
     playlist_title= query_parameters.get('playlist_title')

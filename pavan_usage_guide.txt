@@ -14,6 +14,11 @@ Start Minio:
 		Endpoint:  http://10.0.2.15:9000  http://127.0.0.1:9000
 		AccessKey: CHKH8D13MGHGWFOZR1TD
 		SecretKey: qD2VXhvJ3Yc3wXmmZdfsjvXwiK1xFso+ffYsWSeb
+
+Open minio browser -> http://127.0.0.1:9000   
+	-> create new bucket named "track"
+	->Edit the policy for this bucket to add the prefix * as Read Only.
+
 ---------------------------------------------------------------------------------------
 Set Up service:
 
@@ -21,6 +26,7 @@ Set Up service:
 curl -i -X POST http://localhost:8001/services/ \
     -d 'name=media' \
     -d 'url=http://10.0.2.15:9000/tracks/'
+
 
 
 curl -i -X POST http://localhost:8001/routes/ \
