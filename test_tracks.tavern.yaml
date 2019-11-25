@@ -36,7 +36,7 @@
           track_title: tango
           album_title: Joker
           artist: brad
-          length: '12:12:12'
+          length: '121212'
           track_url: alpha
           album_art_url: tuffy
       response:
@@ -52,7 +52,7 @@
           track_title: tango
           album_title: Joker(Deluxe)
           artist: brad
-          length: '12:12:12'
+          length: '121212'
           track_url: /home/student/Music/tracks/Stronger.mp3
           album_art_url: tuffy
       response:

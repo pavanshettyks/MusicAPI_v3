@@ -20,9 +20,9 @@ CREATE TABLE user (
 	email VARCHAR
 );
 
-INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_anthony','Anthony','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3' ,'/user?username=user_anthony', 'anthony@csu.fullerton.edu');
-INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_pavan','Pavan', 'pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3','/user?username=user_pavan','pavan@csu.fullerton.edu');
-INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_priyanka','Priyanka','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3', '/user?username=user_priyanka','priyanka@csu.fullerton.edu');
+INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_anthony','Anthony','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3' ,'test.com', 'anthony@csu.fullerton.edu');
+INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_pavan','Pavan', 'pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3','est.com','pavan@csu.fullerton.edu');
+INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_priyanka','Priyanka','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3', 'ests.com','priyanka@csu.fullerton.edu');
 
 
 CREATE TABLE tracks (
@@ -34,9 +34,9 @@ CREATE TABLE tracks (
 	album_art_url VARCHAR
 );
 
-INSERT INTO tracks(track_title, album_title, artist, length, track_url) VALUES('Stronger','Graduation', 'Kanye West', '00:05:11','/home/student/Music/tracks/Stronger.mp3');
-INSERT INTO tracks(track_title, album_title, artist, length, track_url) VALUES('Yeah!','Confessions', 'Usher', '00:04:10','/home/student/Music/tracks/Yeah.mp3');
-INSERT INTO tracks(track_title, album_title, artist, length, track_url) VALUES('I Gotta Feeling','The E.N.D.', 'The Black Eyed Peas', '00:04:48','/home/student/Music/tracks/I_Gotta_Feeling.mp3');
+INSERT INTO tracks(track_title, album_title, artist, length, track_url,album_art_url) VALUES('Stronger','Graduation', 'Kanye West', '000511','Waka_waka.mp3','https://i.ytimg.com/vi/pRpeEdMmmQ0/maxresdefault.jpg');
+INSERT INTO tracks(track_title, album_title, artist, length, track_url,album_art_url) VALUES('Yeah!','Confessions', 'Usher', '000410','tokyo_drift.mp3','https://images-na.ssl-images-amazon.com/images/I/81cw8NVT36L._SX342_.jpg');
+INSERT INTO tracks(track_title, album_title, artist, length, track_url,album_art_url) VALUES('I Gotta Feeling','The E.N.D.', 'The Black Eyed Peas', '000448','waving_flag.mp3','http://images.genius.com/2d335571e608b43f30bd8a89e1fa6d38.1000x1000x1.jpg');
 
 
 
@@ -50,10 +50,10 @@ CREATE TABLE description (
 
 );
 
-INSERT INTO description(username, track_url, description) VALUES('user_pavan','/home/student/Music/tracks/Stronger.mp3', 'workout song by kanye west');
-INSERT INTO description(username, track_url, description) VALUES('user_pavan','/home/student/Music/tracks/Yeah.mp3', 'favorite usher song');
-INSERT INTO description(username, track_url, description) VALUES('user_priyanka','/home/student/Music/tracks/Yeah.mp3', 'favorite usher song');
-INSERT INTO description(username, track_url, description) VALUES('user_anthony','/home/student/Music/tracks/I_Gotta_Feeling.mp3', 'classic black eyed peas song');
+INSERT INTO description(username, track_url, description) VALUES('user_pavan','Waka_waka.mp3', 'workout song by kanye west');
+INSERT INTO description(username, track_url, description) VALUES('user_pavan','tokyo_drift.mp3', 'favorite usher song');
+INSERT INTO description(username, track_url, description) VALUES('user_priyanka','tokyo_drift.mp3', 'favorite usher song');
+INSERT INTO description(username, track_url, description) VALUES('user_anthony','waving_flag.mp3', 'classic black eyed peas song');
 
 CREATE TABLE playlist (
 	playlist_id INTEGER primary key,
@@ -75,8 +75,8 @@ CREATE TABLE playlist_tracks (
 	FOREIGN KEY (track_url) REFERENCES tracks(track_url) ON DELETE CASCADE
 );
 
-INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', '/home/student/Music/tracks/Stronger.mp3');
-INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', '/home/student/Music/tracks/Yeah.mp3');
-INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', '/home/student/Music/tracks/I_Gotta_Feeling.mp3');
-INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_anthony','Some', '/home/student/Music/tracks/Stronger.mp3');
-INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_anthony','Some', '/home/student/Music/tracks/Yeah.mp3');
+INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', 'Waka_waka.mp3');
+INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', 'tokyo_drift.mp3');
+INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_priyanka','All', 'waving_flag.mp3');
+INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_anthony','Some', 'Waka_waka.mp3');
+INSERT INTO playlist_tracks(username, playlist_title, track_url) VALUES('user_anthony','Some', 'tokyo_drift.mp3');
