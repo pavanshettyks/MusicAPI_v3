@@ -31,7 +31,7 @@ def close_connection(exception):
 def init_db():
     with app.app_context():
         db = get_db()
-        with app.open_resource('music_store.sql', mode='r') as f:
+        with app.open_resource('music_store_main.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
