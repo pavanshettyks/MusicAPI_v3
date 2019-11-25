@@ -16,7 +16,6 @@ CREATE TABLE tracks (
 	track_uuid GUID primary key
 );
 
-
 /*
 uuid: ac3d3e62-d611-4013-8bc9-22d90623d5db
 */
