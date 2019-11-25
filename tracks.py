@@ -110,6 +110,10 @@ def GetTrack():
     track_uuid= query_parameters.get('track_uuid')
     hasuuid = False;
 
+    #invalid uuid
+    if track_uuid and len(track_uuid)!=32:
+        return jsonify("No track present"),404
+
     query = "SELECT * FROM tracks WHERE"
     to_filter = []
     #print('test',track_uuid )
