@@ -12,7 +12,7 @@
   stages:
     - name: retrieve track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?/home/student/Music/tracks/Yeah.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=ac3d3e62-d611-4013-8bc9-22d90623d5db
         method: GET
       response:
         status_code: 200
@@ -21,7 +21,7 @@
   stages:
     - name: retrieve track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=275fc399-a955-403d-acb1-58cdb6f273b8
         method: GET
       response:
         status_code: 404
@@ -46,7 +46,7 @@
   stages:
     - name: edit track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=/home/student/Music/tracks/Stronger.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=ac3d3e62-d611-4013-8bc9-22d90623d5db
         method: PUT
         json:
           track_title: tango
@@ -54,6 +54,7 @@
           artist: brad
           length: '121212'
           track_url: /home/student/Music/tracks/Stronger.mp3
+          track_uuid: ac3d3e62-d611-4013-8bc9-22d90623d5db
           album_art_url: tuffy
       response:
         status_code: 200
@@ -62,7 +63,7 @@
   stages:
     - name: delete track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=/home/student/Music/tracks/Stronger.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=ac3d3e62-d611-4013-8bc9-22d90623d5db
         method: DELETE
       response:
         status_code: 200
