@@ -41,8 +41,9 @@ def get_description(username,trackID):
     return descriptions_resp[0]['description']
 
 #get track details
-def get_track(trackID):
-    querry_url = 'http://localhost:8000/api/v1/resources/tracks?track_url='+trackID
+def get_track(trackUUID):
+    #querry_url = 'http://localhost:8000/api/v1/resources/tracks?track_url='+trackID
+    querry_url = 'http://localhost:8000/api/v1/resources/tracks?track_uuid='+trackUUID
     track_service_resp = requests.get(querry_url)
     if track_service_resp.status_code != 200:
         return ''
@@ -61,9 +62,9 @@ def get_track(trackID):
 #print(get_description(username,'/home/student/Music/tracks/Yeah.mp3'))
 
 
-# To prepare XSCF
-@app.route('/api/v2/resources/test',methods=['GET'])
-def GetTest():
+# To prepare XSPF
+@app.route('/api/v2/resources/music.xspf',methods=['GET'])
+def Generate_XSPF():
     playlist_service_resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title=All&username=user_priyanka')
     if playlist_service_resp.status_code != 200:
         return jsonify(message="Playlist not found"),404
@@ -87,26 +88,27 @@ def GetTest():
         val = tracks['track_url'].split('/api/v1/resources/tracks?track_url=')
         #print(val)
         if len(val) == 1:
-            track_url = val[0]
+            track_uuid = val[0]
         else:
-            track_url = val[1]
+            track_uuid = val[1]
         #print(tracks['track_url'])
-        track_details= get_track(track_url)
-        annotation = get_description(username,track_url)
+        track_details= get_track(track_uuid)
+        annotation = get_description(username,track_uuid)
+        location = 'http://localhost:8000/media/'+ track_details['location']
 
         #print('user description',get_description(username,track_url))
-        x.add_track(title=track_details['title'],       creator=track_details['creator'],   location =track_details['location'], album=track_details['album'],
+        x.add_track(title=track_details['title'],       creator=track_details['creator'],   location = location, album=track_details['album'],
                 annotation=annotation, duration=track_details['duration'], image=track_details['image'])
 
     #print(x)
     y = str.encode('<?xml version="1.0" encoding="UTF-8"?>') + x.toXml()
     #y.write(f, encoding='utf-8', xml_declaration=True)
     #print(y)
-    f = open("playlist.xspf","w+")
-    f.write(str(y.decode("utf-8")))
-    f.close()
+    #f = open("playlist.xspf","w+")
+    #f.write(str(y.decode("utf-8")))
+    #f.close()
     #resp = jsonify(x.toXml())
     #resp.headers['Location'] = 'http://127.0.0.1:5000/api/v1/resources/user?username='+username
     #resp.status_code = 200
     #resp.headers['mimetype']='application/json'
-    return Response(y,mimetype='text/xspf',status=200)#playlist_service_resp.json())
+    return Response(y,mimetype='application/xspf+xml',status=200)#playlist_service_resp.json())

@@ -1,19 +1,19 @@
 To start kong:
 	-> sudo kong migrations bootstrap
 	->ulimit -n 4096 && sudo kong start
-	
+
 
 To check whether kong is working
 	-> curl -i http://localhost:8001/
 
 
 Start Minio:
-	->./minio server /home/student/data                   
+	->./minio server /home/student/data
 
 	->Copy minio tokens and keep for future
-		Endpoint:  http://10.0.2.15:9000  http://127.0.0.1:9000    
-		AccessKey: CHKH8D13MGHGWFOZR1TD  
-		SecretKey: qD2VXhvJ3Yc3wXmmZdfsjvXwiK1xFso+ffYsWSeb 
+		Endpoint:  http://10.0.2.15:9000  http://127.0.0.1:9000
+		AccessKey: CHKH8D13MGHGWFOZR1TD
+		SecretKey: qD2VXhvJ3Yc3wXmmZdfsjvXwiK1xFso+ffYsWSeb
 ---------------------------------------------------------------------------------------
 Set Up service:
 
@@ -39,6 +39,9 @@ Now try http://localhost:8000/media/<file_name>
 
 http://127.0.0.1:5000/api/v1/resources/user?username=user_pavan
 
+http://localhost:8000/api/v1/resources/user?username=user_pavan
+
+FLASK_APP=xspf_service flask run -p 5400
 -------------------------------------------------------------------------------------
 ################################################
 ################################################
@@ -46,7 +49,7 @@ http://127.0.0.1:5000/api/v1/resources/user?username=user_pavan
 #################################################
 ####################################################
 
-###Setup the upstream 
+###Setup the upstream
 curl -X POST http://localhost:8001/upstreams \
     --data "name=Test5"
 
@@ -67,7 +70,7 @@ curl -X POST http://localhost:8001/upstreams/Test5/targets \
 
 curl -X POST http://localhost:8001/services/ \
     --data "name=Tester" \
-    --data "host=Test5" \   
+    --data "host=Test5" \
     --data "path=/api/v1/resources/user"
 
 
@@ -95,7 +98,7 @@ curl -X PATCH http://localhost:8001/services/Tester/routes/edd7be52-0c58-4b60-8d
 #################################################
 ####################################################
 
-###Setup the upstream 
+###Setup the upstream
 curl -X POST http://localhost:8001/upstreams \
     --data "name=Descirptions_Upstream"
 
@@ -134,7 +137,7 @@ curl -X POST http://localhost:8001/services/Descirptions_Service/routes/ \
 #################################################
 ####################################################
 
-###Setup the upstream 
+###Setup the upstream
 curl -X POST http://localhost:8001/upstreams \
     --data "name=Tracks_Upstream"
 
@@ -173,7 +176,7 @@ curl -X POST http://localhost:8001/services/Tracks_Service/routes/ \
 #################################################
 ####################################################
 
-###Setup the upstream 
+###Setup the upstream
 curl -X POST http://localhost:8001/upstreams \
     --data "name=Playlist_Upstream"
 
@@ -205,4 +208,3 @@ curl -X POST http://localhost:8001/services/Playlist_Service/routes/ \
 
 
 --------------------------------------------------------------------------------
-
