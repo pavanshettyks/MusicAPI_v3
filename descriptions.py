@@ -48,19 +48,19 @@ def GetDescription():
         if request.method == 'GET':
             query_parameters = request.args
             username = query_parameters.get('username')
-            track_url = query_parameters.get('track_url')
+            track_uuid = query_parameters.get('track_uuid')
             to_filter = []
-            if username and track_url:
+            if username and track_uuid:
                 #call the db and check user's is present and get the description
-                query = "SELECT username,track_url,description FROM description WHERE username=? AND  track_url=? ;"
+                query = "SELECT username,track_uuid,description FROM description WHERE username=? AND  track_uuid=? ;"
                 to_filter.append(username)
-                to_filter.append(track_url)
+                to_filter.append(track_uuid)
                 results = query_db(query, to_filter)
                 if not results:
                     return jsonify(message="No description present"),404
                 else:
                     resp = jsonify(results)
-                    resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_url='+track_url
+                    resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
                     resp.status_code = 200
                     return resp
 
@@ -73,15 +73,15 @@ def InserUser():
             data =request.get_json(force= True)
             to_filter = []
             username = data['username']
-            track_url = data['track_url']
+            track_uuid = data['track_uuid']
             description = data['description']
             executionState:bool = False
-            query = "SELECT username,track_url,description FROM description WHERE username=? AND  track_url=? ;"
+            query = "SELECT username,track_uuid,description FROM description WHERE username=? AND  track_uuid=? ;"
             to_filter.append(username)
-            to_filter.append(track_url)
+            to_filter.append(track_uuid)
             results = query_db(query, to_filter)
             if not results:
-                query ="INSERT INTO description(username, track_url, description) VALUES('"+username+"','"+track_url+"','"+description+"');"
+                query ="INSERT INTO description(username, track_uuid, description) VALUES('"+username+"','"+track_uuid+"','"+description+"');"
                 print(query)
                 cur = get_db().cursor()
                 try:
@@ -95,7 +95,7 @@ def InserUser():
                 finally:
                     if executionState:
                         resp = jsonify(message="Data Instersted Sucessfully")
-                        resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_url='+track_url
+                        resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
                         resp.status_code = 201
                         return resp
                     else:
