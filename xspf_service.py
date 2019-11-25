@@ -87,7 +87,7 @@ def Generate_XSPF():
     all_tracks = playlist_resp[0]['all_tracks']
 
     for tracks in all_tracks:
-        val = tracks['track_url'].split('/api/v1/resources/tracks?track_uuid=')
+        val = tracks['track_uuid'].split('/api/v1/resources/tracks?track_uuid=')
         #print(val)
         if len(val) == 1:
             track_uuid = val[0]
