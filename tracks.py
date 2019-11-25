@@ -96,6 +96,9 @@ def query_db(track_uuid,query,args=(),one=False):
 #To get all tracks
 @app.route('/api/v1/resources/tracks',methods=['GET'])
 def GetTrack():
+#    track = '275fc399-a955-403d-acb1-58cdb6f273b5'
+#   print("dddddddddddddddD")
+#    print(uuid.UUID(track).hex)
     query_parameters = request.args
     track_title = query_parameters.get('track_title')
     album_title = query_parameters.get('album_title')
@@ -108,6 +111,7 @@ def GetTrack():
 
     query = "SELECT * FROM tracks WHERE"
     to_filter = []
+    #print('test',track_uuid )
 
     if track_title:
         query += ' track_title=? AND'
@@ -141,6 +145,7 @@ def GetTrack():
 
 
     query = query[:-4] + ';'
+    #print('query',query)
     results = query_db(track_uuid, query, to_filter)
     if not results:
         return jsonify("No track present"),404
@@ -182,7 +187,7 @@ def InsertTrack():
             finally:
                 if executionState:
                     resp = jsonify(message="track inserted successfully", uuid=track_uuid, shard=get_shard(track_uuid.int))
-                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/playlist?track_url='+track_url
+                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/playlist?track_uuid='+track_uuid
                     resp.status_code = 201
                     return resp
                 else:

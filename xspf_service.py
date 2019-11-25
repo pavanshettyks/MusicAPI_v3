@@ -10,13 +10,15 @@ import xspf
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
+
+'''
 resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title=All&username=user_priyanka')
 ls = resp.json()
 username = ls[0]['username']
 playlist_name = ls[0]['playlist_title']
 playlist_description = ls[0]['description']
 all_tracks = ls[0]['all_tracks']
-
+'''
 
 #print(all_tracks)
 #for tracks in all_tracks:
@@ -33,7 +35,7 @@ def get_user_info(username):
 
 #get description for a track
 def get_description(username,trackID):
-    querry_url = 'http://localhost:8000/api/v1/resources/descriptions?username='+username+'&track_url='+trackID
+    querry_url = 'http://localhost:8000/api/v1/resources/descriptions?username='+username+'&track_uuid='+trackID
     descriptions_service_resp = requests.get(querry_url)
     if descriptions_service_resp.status_code != 200:
         return ''
@@ -85,7 +87,7 @@ def Generate_XSPF():
     all_tracks = playlist_resp[0]['all_tracks']
 
     for tracks in all_tracks:
-        val = tracks['track_url'].split('/api/v1/resources/tracks?track_url=')
+        val = tracks['track_url'].split('/api/v1/resources/tracks?track_uuid=')
         #print(val)
         if len(val) == 1:
             track_uuid = val[0]
