@@ -12,7 +12,7 @@
   stages:
     - name: retrieve track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?/home/student/Music/tracks/Yeah.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=275fc399a955403dacb158cdb6f273b5
         method: GET
       response:
         status_code: 200
@@ -46,7 +46,7 @@
   stages:
     - name: edit track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=/home/student/Music/tracks/Stronger.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=275fc399a955403dacb158cdb6f273b5
         method: PUT
         json:
           track_title: tango
@@ -55,6 +55,7 @@
           length: '121212'
           track_url: /home/student/Music/tracks/Stronger.mp3
           album_art_url: tuffy
+          track_uuid: 275fc399a955403dacb158cdb6f273b5
       response:
         status_code: 200
 ---
@@ -62,7 +63,7 @@
   stages:
     - name: delete track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=/home/student/Music/tracks/Stronger.mp3
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=275fc399a955403dacb158cdb6f273b5
         method: DELETE
       response:
         status_code: 200
