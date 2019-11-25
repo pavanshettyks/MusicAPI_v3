@@ -16,6 +16,8 @@ CREATE TABLE tracks (
 	track_uuid GUID primary key
 );
 
+INSERT INTO tracks(track_uuid,track_title, album_title, artist, length, track_url,album_art_url) VALUES('32de3075-797a-4356-9437-9909451645a5','I Gotta Feeling','The E.N.D.', 'The Black Eyed Peas', '000448','waving_flag.mp3','http://images.genius.com/2d335571e608b43f30bd8a89e1fa6d38.1000x1000x1.jpg');
+
 /*
 uuid: 32de3075-797a-4356-9437-9909451645a5
 */
