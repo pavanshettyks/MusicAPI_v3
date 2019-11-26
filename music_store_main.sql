@@ -33,10 +33,10 @@ CREATE TABLE description (
 
 );
 
-INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','275fc399-a955-403d-acb1-58cdb6f273b5', 'workout song by kanye west');
-INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','ac3d3e62-d611-4013-8bc9-22d90623d5db', 'favorite usher song');
-INSERT INTO description(username, track_uuid, description) VALUES('user_priyanka','ac3d3e62-d611-4013-8bc9-22d90623d5db', 'favorite usher song');
-INSERT INTO description(username, track_uuid, description) VALUES('user_anthony','32de3075-797a-4356-9437-9909451645a5', 'classic black eyed peas song');
+INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','275fc399a955403dacb158cdb6f273b5', 'workout song by kanye west');
+INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','ac3d3e62d61140138bc922d90623d5db', 'favorite usher song');
+INSERT INTO description(username, track_uuid, description) VALUES('user_priyanka','ac3d3e62d61140138bc922d90623d5db', 'favorite usher song');
+INSERT INTO description(username, track_uuid, description) VALUES('user_anthony','32de3075797a435694379909451645a5', 'classic black eyed peas song');
 
 CREATE TABLE playlist (
 	playlist_id INTEGER primary key,
@@ -58,8 +58,8 @@ CREATE TABLE playlist_tracks (
 /*	FOREIGN KEY (track_url) REFERENCES tracks(track_url) ON DELETE CASCADE */
 );
 
-INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', '275fc399-a955-403d-acb1-58cdb6f273b5');
-INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', 'ac3d3e62-d611-4013-8bc9-22d90623d5db');
-INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', '32de3075-797a-4356-9437-9909451645a5');
-INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_anthony','Some', '275fc399-a955-403d-acb1-58cdb6f273b5');
-INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_anthony','Some', 'ac3d3e62-d611-4013-8bc9-22d90623d5db');
+INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', '275fc399a955403dacb158cdb6f273b5');
+INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', 'ac3d3e62d61140138bc922d90623d5db');
+INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_priyanka','All', '32de3075797a435694379909451645a5');
+INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_anthony','Some', '275fc399a955403dacb158cdb6f273b5');
+INSERT INTO playlist_tracks(username, playlist_title, track_uuid) VALUES('user_anthony','Some', 'ac3d3e62d61140138bc922d90623d5db');

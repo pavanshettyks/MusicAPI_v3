@@ -1,4 +1,5 @@
 #This is to create a xspf file for playing music from minio
+#localhost:5600/api/v2/resources/music.xspf?playlist_title=All&username=
 
 from flask import  Flask, request, jsonify, g,Response
 import requests
@@ -10,19 +11,6 @@ import xspf
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-
-'''
-resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title=All&username=user_priyanka')
-ls = resp.json()
-username = ls[0]['username']
-playlist_name = ls[0]['playlist_title']
-playlist_description = ls[0]['description']
-all_tracks = ls[0]['all_tracks']
-'''
-
-#print(all_tracks)
-#for tracks in all_tracks:
-#    print(tracks['track_url'])
 
 #get user full name and info(homepage_url)
 def get_user_info(username):
@@ -48,7 +36,7 @@ def get_track(trackUUID):
     querry_url = 'http://localhost:8000/api/v1/resources/tracks?track_uuid='+trackUUID
     track_service_resp = requests.get(querry_url)
     if track_service_resp.status_code != 200:
-        return ''
+        return False
     track_details = {}
     track_resp = track_service_resp.json()
     track_details['title'] = track_resp[0]['track_title']
@@ -65,9 +53,12 @@ def get_track(trackUUID):
 
 
 # To prepare XSPF
-@app.route('/api/v2/resources/music.xspf',methods=['GET'])
+@app.route('/api/v1/resources/music.xspf',methods=['GET'])
 def Generate_XSPF():
-    playlist_service_resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title=All&username=user_priyanka')
+    query_parameters = request.args
+    playlist_title= query_parameters.get('playlist_title')
+    username = query_parameters.get('username')
+    playlist_service_resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title='+playlist_title+'&username='+username)
     if playlist_service_resp.status_code != 200:
         return jsonify(message="Playlist not found"),404
     playlist_resp = playlist_service_resp.json()
@@ -87,20 +78,21 @@ def Generate_XSPF():
     all_tracks = playlist_resp[0]['all_tracks']
 
     for tracks in all_tracks:
-        val = tracks['track_url'].split('/api/v1/resources/tracks?track_uuid=')
-        #print(val)
+        val = tracks['track_uuid'].split('/api/v1/resources/tracks?track_uuid=')
+        print(val)
         if len(val) == 1:
             track_uuid = val[0]
         else:
             track_uuid = val[1]
         #print(tracks['track_url'])
         track_details= get_track(track_uuid)
-        annotation = get_description(username,track_uuid)
-        location = 'http://localhost:8000/media/'+ track_details['location']
+        if track_details:
+            annotation = get_description(username,track_uuid)
+            location = 'http://localhost:8000/media/'+ track_details['location']
 
-        #print('user description',get_description(username,track_url))
-        x.add_track(title=track_details['title'],       creator=track_details['creator'],   location = location, album=track_details['album'],
-                annotation=annotation, duration=track_details['duration'], image=track_details['image'])
+            #print('user description',get_description(username,track_url))
+            x.add_track(title=track_details['title'],       creator=track_details['creator'],   location = location, album=track_details['album'],
+                    annotation=annotation, duration=track_details['duration'], image=track_details['image'])
 
     #print(x)
     y = str.encode('<?xml version="1.0" encoding="UTF-8"?>') + x.toXml()

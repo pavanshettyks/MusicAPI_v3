@@ -88,7 +88,7 @@ def query_db(track_uuid,query,args=(),one=False):
         for x in range(0,3):
             cur = get_db(get_shard(x)).execute(query,args)
             rv += cur.fetchall()
-            cur.close()    
+            cur.close()
         return(rv[0] if rv else None) if one else rv
 
 
@@ -145,6 +145,7 @@ def GetTrack():
     if track_uuid:
         query += ' track_uuid=? AND'
         to_filter.append(uuid.UUID(track_uuid).hex)
+        print("checkpoint")
         hasuuid=True
 
 
