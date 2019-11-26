@@ -17,7 +17,7 @@
       method: GET
     response:
       status_code: 404
-      body: 
+      body:
         message: No user present. Please provide valid username
 ---
   test_name: authenticate a user using get
@@ -127,7 +127,7 @@
   stages:
   - name: Delete user
     request:
-      url: http://127.0.0.1:5000/api/v1/resources/user?username=user_pavan
+      url: http://127.0.0.1:5000/api/v1/resources/user?username=joker12
       method: DELETE
     response:
       status_code: 200
