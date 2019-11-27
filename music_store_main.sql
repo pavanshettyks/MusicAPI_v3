@@ -36,6 +36,8 @@ CREATE TABLE description (
 INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','275fc399a955403dacb158cdb6f273b5', 'workout song by kanye west');
 INSERT INTO description(username, track_uuid, description) VALUES('user_pavan','ac3d3e62d61140138bc922d90623d5db', 'favorite usher song');
 INSERT INTO description(username, track_uuid, description) VALUES('user_priyanka','ac3d3e62d61140138bc922d90623d5db', 'favorite usher song');
+INSERT INTO description(username, track_uuid, description) VALUES('user_priyanka','275fc399a955403dacb158cdb6f273b5', 'favorite usher song1');
+INSERT INTO description(username, track_uuid, description) VALUES('user_priyanka','32de3075797a435694379909451645a5', 'favorite usher song2');
 INSERT INTO description(username, track_uuid, description) VALUES('user_anthony','32de3075797a435694379909451645a5', 'classic black eyed peas song');
 
 CREATE TABLE playlist (
