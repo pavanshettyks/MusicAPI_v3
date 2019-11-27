@@ -193,7 +193,7 @@ def InsertTrack():
             finally:
                 if executionState:
                     resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex, shard=get_shard(track_uuid.int))
-                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/playlist?track_uuid='+track_uuid.hex
+                    resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track_uuid.hex
                     resp.status_code = 201
                     return resp
                 else:

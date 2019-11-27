@@ -88,7 +88,13 @@ def Generate_XSPF():
         track_details= get_track(track_uuid)
         if track_details:
             annotation = get_description(username,track_uuid)
-            location = 'http://localhost:8000/media/'+ track_details['location']
+            track_location_url = track_details['location'].split('http://localhost:8000/media/')
+            if len(track_location_url) == 1:
+                location = 'http://localhost:8000/media/'+ track_location_url[0]
+            else:
+                location = track_details['location']
+            #track_uuid = val[1]
+            #location = 'http://localhost:8000/media/'+ track_details['location']
 
             #print('user description',get_description(username,track_url))
             x.add_track(title=track_details['title'],       creator=track_details['creator'],   location = location, album=track_details['album'],
