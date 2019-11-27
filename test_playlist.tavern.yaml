@@ -8,8 +8,8 @@
         json:
           all_tracks:
             -
-              track_url: /home/student/Music/tracks/Stronger.mp3
-              track_url: /home/student/Music/tracks/Yeah.mp3
+              track_uuid: 275fc399a955403dacb158cdb6f273b5
+              track_uuid: ac3d3e62d61140138bc922d90623d5db
           playlist_title: AllIsWell
           username: user_priyanka
           description: One2Three
