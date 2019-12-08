@@ -2,10 +2,12 @@
 from flask import  Flask, request, jsonify, g
 from werkzeug.security import generate_password_hash,check_password_hash
 import sqlite3
+from cassandra.cluster import Cluster
 
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+
 
 
 #################code will be moved
@@ -38,11 +40,14 @@ def query_db(query, args=(), one=False):
 
 @app.cli.command('init')
 def init_db():
-    with app.app_context():
-        db = get_db()
-        with app.open_resource('music_store_main.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+    cluster = Cluster(['172.17.0.2'], port=9042)
+    session = cluster.connect('user')
+    #session.execute("CREATE TABLE user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
+    # with app.app_context():
+    #     db = get_db()
+    #     with app.open_resource('music_store_main.sql', mode='r') as f:
+    #         db.cursor().executescript(f.read())
+    #     db.commit()
 
 
 
@@ -96,41 +101,44 @@ def GetUser():
 #TO create new user
 @app.route('/api/v1/resources/user',methods=['POST'])
 def InserUser():
-        if request.method == 'POST':
-            data = request.get_json(force= True)
-            #print(type(data))
-            required_fields = ['username', 'display_name', 'password', 'homepage_url', 'email']
-            username = data['username']
-            password = data['password']
+    if request.method == 'POST':
+        data = request.get_json(force= True)
+        #print(type(data))
+        required_fields = ['username', 'display_name', 'password', 'homepage_url', 'email']
+        username = data['username']
+        password = data['password']
 
-            #To check username and password matching
-            if not all([field in data for field in required_fields]):
-                return authenticate_user(username,password)
+        #To check username and password matching
+        if not all([field in data for field in required_fields]):
+            return authenticate_user(username,password)
 
-            display_name  = data['display_name']
-            email  = data['email']
-            homepage_url  = data['homepage_url']
-            hashed_password = generate_password_hash(password)
-            executionState:bool = False
-            query ="INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('"+username+"','"+display_name+"','"+hashed_password+"','"+homepage_url+"','"+email+"');"
-            #print(query)
-            cur = get_db().cursor()
-            try:
-                cur.execute(query)
-                if(cur.rowcount >=1):
-                    executionState = True
-                get_db().commit()
-            except:
-                get_db().rollback()
-                #print("Error")
-            finally:
-                if executionState:
-                    resp = jsonify(message="Data Instersted Sucessfully")
-                    resp.headers['Location'] = 'http://127.0.0.1:5000/api/v1/resources/user?username='+username
-                    resp.status_code = 201
-                    return resp
-                else:
-                    return jsonify(message="Failed to insert data."), 409
+        display_name  = data['display_name']
+        email  = data['email']
+        homepage_url  = data['homepage_url']
+        hashed_password = generate_password_hash(password)
+        executionState:bool = False
+        #query ="INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('"+username+"','"+display_name+"','"+hashed_password+"','"+homepage_url+"','"+email+"');"
+        query ="INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES (%s, %s, %s, %s, %s)"
+        
+        #cur = get_db().cursor()
+        try:
+            #cur.execute(query)
+            print(session)
+            session.execute(query,(username, display_name, hashed_password, homepage_url, email))
+            executionState=True
+            # get_db().commit()
+        except:
+            # get_db().rollback()
+            executionState=False
+            print("Error")
+        finally:
+            if executionState:
+                resp = jsonify(message="Data Instersted Sucessfully")
+                resp.headers['Location'] = 'http://127.0.0.1:5000/api/v1/resources/user?username='+username
+                resp.status_code = 201
+                return resp
+            else:
+                return jsonify(message="Failed to insert data."+ query), 409
 
 
 #To update user password
