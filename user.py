@@ -7,6 +7,10 @@ from cassandra.cluster import Cluster
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+cluster = Cluster(['172.17.0.2'], port=9042)
+session = cluster.connect('music_store')
+
+
 
 
 
@@ -40,9 +44,7 @@ def query_db(query, args=(), one=False):
 
 @app.cli.command('init')
 def init_db():
-    cluster = Cluster(['172.17.0.2'], port=9042)
-    session = cluster.connect('user')
-    #session.execute("CREATE TABLE user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
+    session.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
     # with app.app_context():
     #     db = get_db()
     #     with app.open_resource('music_store_main.sql', mode='r') as f:
