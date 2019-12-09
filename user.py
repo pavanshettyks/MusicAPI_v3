@@ -191,16 +191,18 @@ def DeleteUser():
             query_parameters = request.args
             username = query_parameters.get('username')
             executionState:bool = False
-            cur = get_db().cursor()
+            #cur = get_db().cursor()
             try:
-                cur.execute("DELETE FROM user WHERE username=?",(username,))
-                if cur.rowcount >= 1:
-                    executionState = True
-                get_db().commit()
+                #session.execute("DELETE FROM user WHERE username=?",(username,))
+                session.execute("DELETE FROM music_store.user WHERE username = %s",(username, ))
+                #if session.rowcount >= 1:
+                executionState = True
+                #get_db().commit()
 
             except:
-                    get_db().rollback()
-                    #print("Error")
+                executionState=False
+                #get_db().rollback()
+                #print("Error")
             finally:
                     if executionState:
                         return jsonify(message="Data deleted sucessFully "), 200
