@@ -37,10 +37,9 @@ def close_connection(exception):
 
 
 def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
+    rows=session.execute(query, args)
+    # cur.close()
+    return (rows[0] if rows else None) if one else rows
 
 @app.cli.command('init')
 def init_db():
@@ -85,13 +84,13 @@ def GetUser():
 
             elif username:
                 #call the db and check user . If yes retrieve the data
-                query = "SELECT username,display_name,email,homepage_url FROM user WHERE username=?;"
+                query = "SELECT username,display_name,email,homepage_url FROM user WHERE username=%s;"
                 to_filter.append(username)
                 results = query_db(query, to_filter)
                 if not results:
                     return jsonify(message="No user present. Please provide valid username"),404
                 else:
-                    resp = jsonify(results)
+                    resp = jsonify(results[0])
                     resp.headers['Location'] = 'http://127.0.0.1:5000/api/v1/resources/user?username='+username
                     resp.status_code = 200
                     #resp.headers['mimetype']='application/json'
