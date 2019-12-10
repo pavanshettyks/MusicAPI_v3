@@ -55,14 +55,14 @@ def init_db():
 ##################################
 
 def authenticate_user(username,password):
-    query = "SELECT hashed_password FROM user WHERE username=?;"
+    query = "SELECT hashed_password FROM user WHERE username=%s;"
     to_filter= []
     to_filter.append(username)
     results = query_db(query, to_filter)
     if not results:
         return jsonify(message="User Authentication unsuccessful. Try with new password"),401
 
-    authenticated = check_password_hash(results[0]['hashed_password'],password)
+    authenticated = check_password_hash(results[0][0],password)
     if authenticated:
         return jsonify(message="User Authentication successful"),200
 
@@ -153,22 +153,23 @@ def UpdateUserPwd():
             #print(type(data))
             password = data['password']
             hashed_password = generate_password_hash(password)
-            query = "SELECT * FROM user WHERE username=?;"
+            query = "SELECT * FROM user WHERE username=%s;"
             to_filter.append(username)
             results = query_db(query, to_filter)
             if not results:
                 return jsonify(message="No user present. Please provide valid username"),404
             else:
                 executionState:bool = False
-                cur = get_db().cursor()
+                #cur = get_db().cursor()
                 try:
-                    cur.execute("UPDATE user SET hashed_password=? WHERE username=?",(hashed_password,username,))
-                    if cur.rowcount >= 1:
-                        executionState = True
-                    get_db().commit()
+                    session.execute("UPDATE user SET hashed_password=%s WHERE username=%s",(hashed_password,username,))
+                    #if cur.rowcount >= 1:
+                    executionState = True
+                    #get_db().commit()
 
                 except:
-                        get_db().rollback()
+                        executionState = True
+                        #get_db().rollback()
                         #print("Error")
                 finally:
                         if executionState:
