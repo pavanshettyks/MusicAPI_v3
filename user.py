@@ -2,6 +2,7 @@
 from flask import  Flask, request, jsonify, g
 from werkzeug.security import generate_password_hash,check_password_hash
 import sqlite3
+import uuid
 from cassandra.cluster import Cluster
 
 
@@ -9,28 +10,31 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 cluster = Cluster(['172.17.0.2'], port=9042)
 session = cluster.connect('music_store')
-
+sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
 
 
 
 
 #################code will be moved
-def make_dicts(cursor, row):
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
+# def make_dicts(cursor, row):
+#     return dict((cursor.description[idx][0], value)
+#                 for idx, value in enumerate(row))
 
-def get_db():
-    db = getattr(g, '_database', None)
+# def get_db():
+#     db = getattr(g, '_database', None)
 
-    if db is None:
-        db = g._database = sqlite3.connect('MUSICDATABASE')
-        db.row_factory = make_dicts
-    db.cursor().execute("PRAGMA foreign_keys=ON")
-    return db
+#     if db is None:
+#         db = g._database = sqlite3.connect('MUSICDATABASE')
+#         db.row_factory = make_dicts
+#     db.cursor().execute("PRAGMA foreign_keys=ON")
+#     return db
 
 
 @app.teardown_appcontext
 def close_connection(exception):
+    # session.execute('DROP TABLE IF EXISTS music_store.user;')
+    # session.execute('DROP TABLE IF EXISTS music_store.tracks;')
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
@@ -44,6 +48,7 @@ def query_db(query, args=(), one=False):
 @app.cli.command('init')
 def init_db():
     session.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
+    session.execute("CREATE TABLE IF NOT EXISTS tracks (track_title VARCHAR, album_title VARCHAR, artist VARCHAR, length TIME, track_url VARCHAR, album_art_url VARCHAR, track_uuid uuid primary key,descriptions map<VARCHAR, VARCHAR>)")
     # with app.app_context():
     #     db = get_db()
     #     with app.open_resource('music_store_main.sql', mode='r') as f:
@@ -139,7 +144,7 @@ def InserUser():
                 resp.status_code = 201
                 return resp
             else:
-                return jsonify(message="Failed to insert data."+ query), 409
+                return jsonify(message="Failed to insert data."), 409
 
 
 #To update user password

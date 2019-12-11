@@ -1,12 +1,15 @@
 from flask import  Flask, request, jsonify, g
 import sqlite3
 import uuid
+from cassandra.cluster import Cluster
 
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
-sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
-sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
+cluster = Cluster(['172.17.0.2'], port=9042)
+session = cluster.connect('music_store')
+# sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+# sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
 
 
 
@@ -94,72 +97,72 @@ def query_db(track_uuid,query,args=(),one=False):
 
 
 
-#To get all tracks
-@app.route('/api/v1/resources/tracks',methods=['GET'])
-def GetTrack():
-#    track = '275fc399-a955-403d-acb1-58cdb6f273b5'
-#   print("dddddddddddddddD")
-#    print(uuid.UUID(track).hex)
-    query_parameters = request.args
-    track_title = query_parameters.get('track_title')
-    album_title = query_parameters.get('album_title')
-    artist = query_parameters.get('artist')
-    length = query_parameters.get('length')
-    album_art_url = query_parameters.get('album_art_url')
-    track_url= query_parameters.get('track_url')
-    track_uuid= query_parameters.get('track_uuid')
-    hasuuid = False;
+# #To get all tracks
+# @app.route('/api/v1/resources/tracks',methods=['GET'])
+# def GetTrack():
+# #    track = '275fc399-a955-403d-acb1-58cdb6f273b5'
+# #   print("dddddddddddddddD")
+# #    print(uuid.UUID(track).hex)
+#     query_parameters = request.args
+#     track_title = query_parameters.get('track_title')
+#     album_title = query_parameters.get('album_title')
+#     artist = query_parameters.get('artist')
+#     length = query_parameters.get('length')
+#     album_art_url = query_parameters.get('album_art_url')
+#     track_url= query_parameters.get('track_url')
+#     track_uuid= query_parameters.get('track_uuid')
+#     hasuuid = False;
 
-    #invalid uuid
-    if track_uuid and len(track_uuid)!=32:
-        return jsonify("No track present"),404
+#     #invalid uuid
+#     if track_uuid and len(track_uuid)!=32:
+#         return jsonify("No track present"),404
 
-    query = "SELECT * FROM tracks WHERE"
-    to_filter = []
-    #print('test',track_uuid )
+#     query = "SELECT * FROM tracks WHERE"
+#     to_filter = []
+#     #print('test',track_uuid )
 
-    if track_title:
-        query += ' track_title=? AND'
-        to_filter.append(track_title)
+#     if track_title:
+#         query += ' track_title= %s AND'
+#         to_filter.append(track_title)
 
-    if album_title:
-        query += ' album_title=? AND'
-        to_filter.append(album_title)
+#     if album_title:
+#         query += ' album_title= %s AND'
+#         to_filter.append(album_title)
 
-    if artist:
-        query += ' artist=? AND'
-        to_filter.append(artist)
+#     if artist:
+#         query += ' artist= %s AND'
+#         to_filter.append(artist)
 
-    if length:
-        query += ' length=? AND'
-        to_filter.append(length)
+#     if length:
+#         query += ' length= %s AND'
+#         to_filter.append(length)
 
-    if album_art_url:
-        query += ' album_art_url=? AND'
-        to_filter.append(album_art_url)
+#     if album_art_url:
+#         query += ' album_art_url= %s AND'
+#         to_filter.append(album_art_url)
 
-    if track_url:
-        query += ' track_url=? AND'
-        to_filter.append(track_url)
+#     if track_url:
+#         query += ' track_url= %s AND'
+#         to_filter.append(track_url)
 
-    if track_uuid:
-        query += ' track_uuid=? AND'
-        to_filter.append(uuid.UUID(track_uuid).hex)
-        print("checkpoint")
-        hasuuid=True
+#     if track_uuid:
+#         query += ' track_uuid= %s AND'
+#         to_filter.append(uuid.UUID(track_uuid).hex)
+#         print("checkpoint")
+#         hasuuid=True
 
 
 
-    query = query[:-4] + ';'
-    #print('query',query)
-    results = query_db(track_uuid, query, to_filter)
-    if not results:
-        return jsonify("No track present"),404
-    else:
-        resp = jsonify(results)
-        resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks'
-        resp.status_code = 200
-        return resp
+#     query = query[:-4] + ';'
+#     #print('query',query)
+#     results = query_db(track_uuid, query, to_filter)
+#     if not results:
+#         return jsonify("No track present"),404
+#     else:
+#         resp = jsonify(results)
+#         resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks'
+#         resp.status_code = 200
+#         return resp
 
 
 #To post a new track
@@ -170,7 +173,7 @@ def InsertTrack():
         track_title = data['track_title']
         album_title = data['album_title']
         artist = data['artist']
-        length = data['length']
+        length:Time = data['length']
         track_url = data['track_url']
         album_art_url = data['album_art_url']
         track_uuid = uuid.uuid4()
@@ -179,20 +182,23 @@ def InsertTrack():
 
         if track_url:
 
-            query ="INSERT INTO tracks(track_title, album_title, artist, length, track_url, album_art_url, track_uuid) VALUES('"+track_title+"','"+album_title+"','"+artist+"','"+length+"','"+track_url+"','"+album_art_url+"','"+track_uuid.hex+"');"
+            #query ="INSERT INTO tracks(track_title, album_title, artist, length, track_url, album_art_url, track_uuid) VALUES('"+track_title+"','"+album_title+"','"+artist+"','"+length+"','"+track_url+"','"+album_art_url+"','"+track_uuid.hex+"');"
+            query ="INSERT INTO tracks(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions) VALUES(%s, %s, %s, %s, %s, %s, %s);"
+            descriptions = {}
             print(query)
-            cur = get_db(get_shard(track_uuid.int)).cursor()
+            #cur = get_db(get_shard(track_uuid.int)).cursor()
             try:
-                cur.execute(query)
-                if(cur.rowcount >=1):
-                    executionState = True
-                get_db(get_shard(track_uuid.int)).commit()
+                session.execute(query,(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions))
+                #if(cur.rowcount >=1):
+                executionState = True
+                #get_db(get_shard(track_uuid.int)).commit()
             except:
-                get_db(get_shard(track_uuid.int)).rollback()
+                executionState = False
+                # get_db(get_shard(track_uuid.int)).rollback()
                 print("Error")
             finally:
                 if executionState:
-                    resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex, shard=get_shard(track_uuid.int))
+                    resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex)
                     resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track_uuid.hex
                     resp.status_code = 201
                     return resp
