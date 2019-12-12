@@ -48,7 +48,8 @@ def query_db(query, args=(), one=False):
 @app.cli.command('init')
 def init_db():
     session.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
-    session.execute("CREATE TABLE IF NOT EXISTS tracks (track_title VARCHAR, album_title VARCHAR, artist VARCHAR, length TIME, track_url VARCHAR, album_art_url VARCHAR, track_uuid uuid primary key,descriptions map<VARCHAR, VARCHAR>)")
+    session.execute("CREATE TABLE IF NOT EXISTS tracks (track_title VARCHAR, album_title VARCHAR, artist VARCHAR, length INT, track_url VARCHAR, album_art_url VARCHAR, track_uuid uuid primary key,descriptions map<VARCHAR, VARCHAR>)")
+    session.execute("CREATE TABLE IF NOT EXISTS playlist (playlist_id uuid PRIMARY KEY,playlist_title VARCHAR, username VARCHAR, description VARCHAR, track_uuid set<uuid>)")
     # with app.app_context():
     #     db = get_db()
     #     with app.open_resource('music_store_main.sql', mode='r') as f:
