@@ -78,6 +78,7 @@ def InsertPlaylist():
             username = data['username']
             description = data['description']
             all_tracks = data['all_tracks']
+            playlist_id = uuid.uuid4()
             executionState:bool = False
             query = "SELECT playlist_title FROM playlist WHERE playlist_title=%s AND username =%s ALLOW FILTERING;"
             # to_filter.append(playlist_title)
@@ -85,17 +86,17 @@ def InsertPlaylist():
             results = session.execute(query, (playlist_title, username))
             if not results:
                 #query ="INSERT INTO playlist(playlist_title,username, description) VALUES('"+playlist_title+"','"+username+"','"+description+"');"
-                query ="INSERT INTO playlist(playlist_title,username, description) VALUES(%s, %s, %s);"
+                query ="INSERT INTO playlist(playlist_id, playlist_title,username, description) VALUES(%s, %s, %s, %s);"
                 #cur = get_db().cursor()
                 #cur2 = get_db().cursor()
                 try:
-                    session.execute(query,(playlist_title,username, description))
+                    session.execute(query,(playlist_id, playlist_title,username, description))
                     #if(cur.rowcount >=1):
                     executionState = True
                     if all_tracks:
-                        query = "UPDATE playlist SET track_uuid = track_uuid + {%s} WHERE playlist_title=%s;"
+                        query = "UPDATE playlist SET track_uuid = track_uuid + {%s} WHERE playlist_id=%s;"
                         for track in all_tracks:
-                            session.execute(query,(uuid.UUID(track['track_uuid']),playlist_title))
+                            session.execute(query,(uuid.UUID(track['track_uuid']),playlist_id))
                         # multi_insert_querry = generate_multiple_insert(all_tracks,username,playlist_title)
                         #print(multi_insert_querry)
                         #session.execute(multi_insert_querry)
@@ -106,7 +107,7 @@ def InsertPlaylist():
                     #print("error")
                 finally:
                     if executionState:
-                        resp = jsonify(message="Data Instersted Sucessfully")
+                        resp = jsonify(message="Data Instersted Sucessfully"+ "playlist_id:"+playlist_id.hex)
                         resp.headers['Location'] = 'http://127.0.0.1:5300/api/v1/resources/playlist?playlist_title='+playlist_title+'&'+'username='+username
                         resp.status_code = 201
                         return resp
@@ -145,12 +146,11 @@ def InsertPlaylist():
 def DeletePlaylist():
     if request.method == 'DELETE':
         query_parameters = request.args
-        playlist_title = query_parameters.get('playlist_title')
-        username = query_parameters.get('username')
+        playlist_id = query_parameters.get('playlist_id')
         executionState:bool = False
         # cur = get_db().cursor()
         try:
-            session.execute("DELETE FROM playlist WHERE playlist_title=%s;",(playlist_title, ))
+            session.execute("DELETE FROM playlist WHERE playlist_id=%s;",(uuid.UUID(playlist_id), ))
             # if cur.rowcount >= 1:
             executionState = True
             # get_db().commit()
@@ -172,55 +172,64 @@ def DeletePlaylist():
 def GetAllPlaylist():
     if request.method=='GET':
         query_parameters = request.args
-        playlist_title = query_parameters.get('playlist_title')
+        playlist_id = query_parameters.get('playlist_id')
         username = query_parameters.get('username')
         to_filter = []
-        if username and playlist_title:
-            query = "SELECT playlist_title,username,description FROM playlist WHERE username= %s AND playlist_title= %s ALLOW FILTERING;"
-            to_filter.append(username)
-            to_filter.append(playlist_title)
+        if playlist_id:
+            query = "SELECT playlist_title,username,description FROM playlist WHERE playlist_id= %s;"
+            #to_filter.append(username)
+            #to_filter.append(playlist_title)
 
-            results = session.execute(query, to_filter)
+            results = session.execute(query, (uuid.UUID(playlist_id),))
             if not results:
                 return jsonify(message="No playlist present"), 404
             else:
-                query = "SELECT track_uuid FROM playlist WHERE username=%s AND playlist_title=%s ALLOW FILTERING;"
-                track_uuid = session.execute(query, to_filter)
+                mmap ={}
+                query = "SELECT track_uuid FROM playlist WHERE playlist_id= %s;"
+                track_uuid = session.execute(query, (uuid.UUID(playlist_id), ))
                 track_uuid = track_uuid[0]
                 track_uuid = track_uuid.track_uuid
                 rv=list()
                 for track in track_uuid:
-                    output={"'track_uuid': "+"'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid="+track.hex+"'"}
+                    output={'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track.hex}
                     #output['track_uuid'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track.hex
-                    rv += output
+                    rv+=output
                     #track['track_uuid'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track['track_uuid']
                 #results[0]['all_tracks']= track_uuid
 
                 resp = jsonify(rv)
 
-                resp.headers['Location']='http://127.0.0.1:5300/api/v1/resources/playlist?username='+username+'&playlist_title='+playlist_title
+                resp.headers['Location']='http://127.0.0.1:5300/api/v1/resources/playlist?playlist_id='+playlist_id
                 resp.status_code = 200
                 return resp
 
         elif username:
-            query = "SELECT playlist_title,username,description FROM playlist WHERE username=?;"
+            query = "SELECT playlist_title,username,description FROM playlist WHERE username=%s ALLOW FILTERING;"
             to_filter.append(username)
-            results = query_db(query, to_filter)
-            if not results:
+            results = session.execute(query, (username,))
+            rv=list()
+            for row in results:
+                output={row}
+                rv += output
+            if not rv:
                 return jsonify(message="No playlist present"), 404
             else:
-                resp = jsonify(results)
+                resp = jsonify(rv)
                 resp.headers['Location']='http://127.0.0.1:5300/api/v1/resources/playlist?username='+username
                 resp.status_code = 200
                 return resp
         else:
             query = "SELECT playlist_title,username,description FROM playlist;"
-
-            results = query_db(query, to_filter)
-            if not results:
+            
+            rv=list()
+            rows = session.execute(query)
+            for row in rows:
+                output={row}
+                rv += output
+            if not rv:
                 return jsonify(message="No playlist present"), 404
             else:
-                resp = jsonify(results)
+                resp = jsonify(rv)
                 resp.headers['Location']='http://127.0.0.1:5300/api/v1/resources/playlist'
                 resp.status_code = 200
                 return resp
