@@ -61,11 +61,13 @@ def GetDescription():
             results = session.execute(query, (uuid.UUID(track_uuid), ))
             result=results[0]
             result= result.descriptions
-            result= result[username]
-            if not result:
+            desc = None
+            if username in result:
+                desc= result[username]
+            if not result or desc==None:
                 return jsonify(message="No description present"),404
             else:
-                resp = jsonify("username: "+ username+" description: "+result)
+                resp = jsonify("username: "+ username+" description: "+desc)
                 resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
                 resp.status_code = 200
                 return resp
