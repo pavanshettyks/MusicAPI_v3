@@ -86,6 +86,8 @@ def query_db(track_uuid,query,args=(),one=False):
         #cur = get_db(get_shard(uuid.UUID(track_uuid).int)).execute(query,args)
         #rv = cur.fetchall()
         #cur.close()
+        if not row:
+            return False
         return(row[0])
     else :
         rv=list()
@@ -183,22 +185,23 @@ def InsertTrack():
         track_title = data['track_title']
         album_title = data['album_title']
         artist = data['artist']
-        length:Time = data['length']
+        length = data['length']
         track_url = data['track_url']
         album_art_url = data['album_art_url']
         track_uuid = uuid.uuid4()
+
 
         executionState:bool = False
 
         if track_url:
 
             #query ="INSERT INTO tracks(track_title, album_title, artist, length, track_url, album_art_url, track_uuid) VALUES('"+track_title+"','"+album_title+"','"+artist+"','"+length+"','"+track_url+"','"+album_art_url+"','"+track_uuid.hex+"');"
-            query ="INSERT INTO tracks(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions) VALUES(%s, %s, %s, %s, %s, %s, %s);"
+            query ="INSERT INTO tracks(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions, length) VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
             descriptions = {}
             print(query)
             #cur = get_db(get_shard(track_uuid.int)).cursor()
             try:
-                session.execute(query,(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions))
+                session.execute(query,(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions, int(length)))
                 #if(cur.rowcount >=1):
                 executionState = True
                 #get_db(get_shard(track_uuid.int)).commit()
@@ -234,16 +237,17 @@ def EditTrack():
             album_art_url = data['album_art_url']
             query_parameters = request.args
             track_uuid_param = query_parameters.get('track_uuid')
+            descriptions = {}
 
             executionState:bool = False
             if track_uuid == track_uuid_param:
                 #query ="UPDATE tracks SET track_title='"+track_title+"', album_title='"+album_title+"', artist='"+artist+"', length='"+length+"', album_art_url='"+album_art_url+"'  WHERE track_uuid='"+uuid.UUID(track_uuid).hex+"';"
-                query ="UPDATE tracks SET track_title='%s', album_title='%s', artist='%s', length='%s', album_art_url='%s'  WHERE track_uuid='%s';"
+                query ="UPDATE music_store.tracks SET track_title= %s, album_title= %s, artist= %s, album_art_url= %s, descriptions= %s  WHERE track_uuid= %s;"
                 
                 print(query)
                 #cur = get_db(get_shard(uuid.UUID(track_uuid).int)).cursor()
                 try:
-                    session.execute(query,(track_title, album_title, artist, length, album_art_url, uuid.UUID(track_uuid).hex))
+                    session.execute(query,(track_title, album_title, artist, album_art_url, descriptions, uuid.UUID(track_uuid)))
                     #if(cur.rowcount >=1):
                     executionState = True
                     #get_db(get_shard(uuid.UUID(track_uuid).int)).commit()
@@ -271,16 +275,16 @@ def DeleteTrack():
         query_parameters = request.args
         track_uuid = uuid.UUID(query_parameters.get('track_uuid'))
         executionState:bool = False
-        cur = get_db(get_shard(track_uuid.int)).cursor()
+        #cur = get_db(get_shard(track_uuid.int)).cursor()
         try:
-            cur.execute("DELETE FROM tracks WHERE track_uuid=?",(track_uuid.hex,))
-
-            if cur.rowcount >= 1:
-                executionState = True
-            get_db(get_shard(track_uuid.int)).commit()
+            session.execute("DELETE FROM tracks WHERE track_uuid= %s",(track_uuid,))
+            #if cur.rowcount >= 1:
+            executionState = True
+            #get_db(get_shard(track_uuid.int)).commit()
 
         except:
-            get_db(get_shard(track_uuid.int)).rollback()
+            executionState = False
+            #get_db(get_shard(track_uuid.int)).rollback()
             print("Error")
         finally:
             if executionState:
