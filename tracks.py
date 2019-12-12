@@ -3,7 +3,6 @@ import sqlite3
 import uuid
 from cassandra.cluster import Cluster
 
-
 app = Flask(__name__)
 app.config["DEBUG"] = True
 cluster = Cluster(['172.17.0.2'], port=9042)
