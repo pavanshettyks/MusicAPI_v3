@@ -92,7 +92,8 @@ def query_db(track_uuid,query,args=(),one=False):
         rv=list()
         rows = session.execute(query, args)
         for row in rows:
-            rv += row
+            output={row}
+            rv += output
         return(rv)
         # rv=list();
         # for x in range(0,3):
@@ -126,7 +127,7 @@ def GetTrack():
     if track_uuid and len(track_uuid)!=32:
         return jsonify("No track present"),404
 
-    query = "SELECT * FROM tracks WHERE"
+    query = "SELECT track_title, album_title, artist, length, track_url, album_art_url, track_uuid FROM tracks WHERE"
     to_filter = []
     #print('test',track_uuid )
 
@@ -160,7 +161,7 @@ def GetTrack():
         print("checkpoint")
         hasuuid=True
     else:
-        query = "SELECT * FROM tracks    "
+        query = "SELECT track_title, album_title, artist, length, track_url, album_art_url, track_uuid FROM tracks    "
 
 
 
