@@ -101,7 +101,7 @@ def query_db(track_uuid,query,args=(),one=False):
         #     rv += cur.fetchall()
         #     cur.close()
         # return(rv[0] if rv else None) if one else rv
-        
+
 
 
 
@@ -113,6 +113,8 @@ def GetTrack():
 #    track = '275fc399-a955-403d-acb1-58cdb6f273b5'
 #   print("dddddddddddddddD")
 #    print(uuid.UUID(track).hex)
+
+
     query_parameters = request.args
     track_title = query_parameters.get('track_title')
     album_title = query_parameters.get('album_title')
@@ -124,8 +126,8 @@ def GetTrack():
     hasuuid = False;
 
     #invalid uuid
-    if track_uuid and len(track_uuid)!=32:
-        return jsonify("No track present"),404
+    if track_uuid and not(len(track_uuid)==32 or len(track_uuid)==36):
+        return jsonify(message="No track present"),404
 
     query = "SELECT track_title, album_title, artist, length, track_url, album_art_url, track_uuid FROM tracks WHERE"
     to_filter = []
@@ -156,6 +158,7 @@ def GetTrack():
         to_filter.append(track_url)
 
     if track_uuid:
+        #track_uuid = uuid.UUID(track_uuid).hex
         query += ' track_uuid= %s AND'
         to_filter.append(uuid.UUID(track_uuid))
         print("checkpoint")
@@ -169,7 +172,7 @@ def GetTrack():
     #print('query',query)
     results = query_db(track_uuid, query, to_filter)
     if not results:
-        return jsonify("No track present"),404
+        return jsonify(message="No track present"),404
     else:
         resp = jsonify(results)
         resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks'
@@ -243,7 +246,7 @@ def EditTrack():
             if track_uuid == track_uuid_param:
                 #query ="UPDATE tracks SET track_title='"+track_title+"', album_title='"+album_title+"', artist='"+artist+"', length='"+length+"', album_art_url='"+album_art_url+"'  WHERE track_uuid='"+uuid.UUID(track_uuid).hex+"';"
                 query ="UPDATE music_store.tracks SET track_title= %s, album_title= %s, artist= %s, album_art_url= %s, descriptions= %s  WHERE track_uuid= %s;"
-                
+
                 print(query)
                 #cur = get_db(get_shard(uuid.UUID(track_uuid).int)).cursor()
                 try:
