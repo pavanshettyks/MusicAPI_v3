@@ -94,7 +94,7 @@ def InsertPlaylist():
                     #if(cur.rowcount >=1):
                     executionState = True
                     if all_tracks:
-                        query = "UPDATE playlist SET track_uuid = track_uuid + {%s} WHERE playlist_id=%s;"
+                        query = "UPDATE playlist SET all_tracks = track_uuid + {%s} WHERE playlist_id=%s;"
                         for track in all_tracks:
                             session.execute(query,(uuid.UUID(track['track_uuid']),playlist_id))
                         # multi_insert_querry = generate_multiple_insert(all_tracks,username,playlist_title)
@@ -185,7 +185,7 @@ def GetAllPlaylist():
                 return jsonify(message="No playlist present"), 404
             else:
                 mmap ={}
-                query = "SELECT track_uuid FROM playlist WHERE playlist_id= %s;"
+                query = "SELECT all_tracks FROM playlist WHERE playlist_id= %s;"
                 track_uuid = session.execute(query, (uuid.UUID(playlist_id), ))
                 track_uuid = track_uuid[0]
                 track_uuid = track_uuid.track_uuid
@@ -220,7 +220,7 @@ def GetAllPlaylist():
                 return resp
         else:
             query = "SELECT playlist_title,username,description FROM playlist;"
-            
+
             rv=list()
             rows = session.execute(query)
             for row in rows:
