@@ -47,12 +47,20 @@ def query_db(query, args=(), one=False):
 
 @app.cli.command('init')
 def init_db():
-    #session.execute("DROP TABLE IF EXISTS user")
-    #session.execute("DROP TABLE IF EXISTS tracks")
-    #session.execute("DROP TABLE IF EXISTS playlist")
+    session.execute("DROP TABLE IF EXISTS music_store.user;")
+    session.execute("DROP TABLE IF EXISTS music_store.tracks;")
+    session.execute("DROP TABLE IF EXISTS music_store.playlist;")
     session.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
     session.execute("CREATE TABLE IF NOT EXISTS tracks (track_title VARCHAR, album_title VARCHAR, artist VARCHAR, length INT, track_url VARCHAR, album_art_url VARCHAR, track_uuid uuid primary key,descriptions map<VARCHAR, VARCHAR>)")
     session.execute("CREATE TABLE IF NOT EXISTS playlist (playlist_id uuid PRIMARY KEY,playlist_title VARCHAR, username VARCHAR, description VARCHAR, all_tracks set<uuid>)")
+    session.execute("INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES ('user_anthony','Anthony','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3' ,'useranthony.com', 'anthony@csu.fullerton.edu');")
+    session.execute("INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_pavan','Pavan', 'pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3','userpavan.com','pavan@csu.fullerton.edu');")
+    session.execute("INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('user_priyanka','Priyanka','pbkdf2:sha256:150000$bGSxegkS$7598256a7ff683743b0dbe182ee77eec4afce1c8339914f482e4e626491b28b3', 'userpriyanka.com','priyanka@csu.fullerton.edu');")
+    session.execute("INSERT INTO tracks(track_uuid,track_title, album_title, artist, length, track_url,album_art_url, descriptions) VALUES(275fc399-a955-403d-acb1-58cdb6f273b5,'Stronger','Graduation', 'Kanye West', 000511,'http://localhost:8000/media/Waka_waka.mp3','https://i.ytimg.com/vi/pRpeEdMmmQ0/maxresdefault.jpg', {'user_pavan':'workout song by kanye west','user_priyanka':'favorite usher song1'});")
+    session.execute("INSERT INTO tracks(track_uuid,track_title, album_title, artist, length, track_url,album_art_url,descriptions) VALUES(ac3d3e62-d611-4013-8bc9-22d90623d5db,'Yeah!','Confessions', 'Usher', 000410,'http://localhost:8000/media/tokyo_drift.mp3','https://images-na.ssl-images-amazon.com/images/I/81cw8NVT36L._SX342_.jpg', {'user_pavan':'favorite usher song','user_priyanka':'favorite usher song'});")
+    session.execute("INSERT INTO tracks(track_uuid,track_title, album_title, artist, length, track_url,album_art_url,descriptions) VALUES(32de3075-797a-4356-9437-9909451645a5,'I Gotta Feeling','The E.N.D.', 'The Black Eyed Peas', 000448,'http://localhost:8000/media/waving_flag.mp3','http://images.genius.com/2d335571e608b43f30bd8a89e1fa6d38.1000x1000x1.jpg',{'user_priyanka':'favorite usher song2','user_anthony':'classic black eyed peas song'});")
+    session.execute("INSERT INTO playlist(playlist_id,playlist_title, username, description, all_tracks) VALUES (a1f9d26f-acbd-48cd-b6e5-7b52caae73e7,'All','user_priyanka','This playlist contains all of my songs',{275fc399-a955-403d-acb1-58cdb6f273b5,ac3d3e62-d611-4013-8bc9-22d90623d5db,32de3075-797a-4356-9437-9909451645a5});")
+    session.execute("INSERT INTO playlist(playlist_id,playlist_title, username, description, all_tracks) VALUES (3733c647-73d5-4983-9745-1accb3aa0c4f,'Some','user_anthony','This playlist contains some of my songs',{275fc399-a955-403d-acb1-58cdb6f273b5,ac3d3e62-d611-4013-8bc9-22d90623d5db});")
     # with app.app_context():
     #     db = get_db()
     #     with app.open_resource('music_store_main.sql', mode='r') as f:
