@@ -219,7 +219,7 @@ def GetAllPlaylist():
                 resp.status_code = 200
                 return resp
         else:
-            query = "SELECT playlist_idplaylist_title,username,description FROM playlist;"
+            query = "SELECT playlist_id,playlist_title,username,description FROM playlist;"
 
             rv=list()
             rows = session.execute(query)
