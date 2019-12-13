@@ -51,20 +51,24 @@ def GetDescription():
     if request.method == 'GET':
         query_parameters = request.args
         username = query_parameters.get('username')
-        track_uuid = query_parameters.get('track_uuid')
+        track_uuid = uuid.UUID(query_parameters.get('track_uuid')).hex
+        #return jsonify(uuid.UUID(track_uuid)),404
         to_filter = []
         if username and track_uuid:
             #call the db and check user's is present and get the description
             query = "SELECT descriptions FROM tracks WHERE track_uuid=%s ;"
             #to_filter.append(username)
             #to_filter.append(track_uuid)
+
             results = session.execute(query, (uuid.UUID(track_uuid), ))
+            if not results:
+                return jsonify(message="No description present"),404
             result=results[0]
             result= result.descriptions
             desc = None
-            if username in result:
+            if result and username in result:
                 desc= result[username]
-            if not result or desc==None:
+            if desc == None:
                 return jsonify(message="No description present"),404
             else:
                 output={}
@@ -79,7 +83,7 @@ def GetDescription():
 
 #TO create new description
 @app.route('/api/v1/resources/descriptions',methods=['POST'])
-def InserUser():
+def InserDesc():
     if request.method == 'POST':
         data =request.get_json(force= True)
         to_filter = []
@@ -92,7 +96,7 @@ def InserUser():
         if results:
             #query ="INSERT INTO (username, track_uuid, description) VALUES('"+username+"','"+track_uuid+"','"+description+"');"
             query ="UPDATE tracks SET descriptions = descriptions + { %s: %s } WHERE track_uuid = %s;"
-            
+
             print(query)
             #cur = get_db().cursor()
             try:

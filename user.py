@@ -47,6 +47,9 @@ def query_db(query, args=(), one=False):
 
 @app.cli.command('init')
 def init_db():
+    #session.execute("DROP TABLE IF EXISTS user")
+    #session.execute("DROP TABLE IF EXISTS tracks")
+    #session.execute("DROP TABLE IF EXISTS playlist")
     session.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR primary key, hashed_password VARCHAR, display_name VARCHAR, homepage_url VARCHAR, email VARCHAR)")
     session.execute("CREATE TABLE IF NOT EXISTS tracks (track_title VARCHAR, album_title VARCHAR, artist VARCHAR, length INT, track_url VARCHAR, album_art_url VARCHAR, track_uuid uuid primary key,descriptions map<VARCHAR, VARCHAR>)")
     session.execute("CREATE TABLE IF NOT EXISTS playlist (playlist_id uuid PRIMARY KEY,playlist_title VARCHAR, username VARCHAR, description VARCHAR, track_uuid set<uuid>)")
@@ -126,7 +129,7 @@ def InserUser():
         executionState:bool = False
         #query ="INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES('"+username+"','"+display_name+"','"+hashed_password+"','"+homepage_url+"','"+email+"');"
         query ="INSERT INTO user(username, display_name, hashed_password, homepage_url, email) VALUES (%s, %s, %s, %s, %s)"
-        
+
         #cur = get_db().cursor()
         try:
             #cur.execute(query)
