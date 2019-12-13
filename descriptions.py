@@ -74,7 +74,9 @@ def GetDescription():
                 output={}
                 output['username']=username
                 output['description']=desc
-                resp = jsonify(output)
+                result = []
+                result.append(output)
+                resp = jsonify(result)
                 resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
                 resp.status_code = 200
                 return resp

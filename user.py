@@ -107,7 +107,7 @@ def GetUser():
                 if not results:
                     return jsonify(message="No user present. Please provide valid username"),404
                 else:
-                    resp = jsonify(results[0])
+                    resp = jsonify(list(results))
                     resp.headers['Location'] = 'http://127.0.0.1:5000/api/v1/resources/user?username='+username
                     resp.status_code = 200
                     #resp.headers['mimetype']='application/json'

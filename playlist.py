@@ -195,14 +195,16 @@ def GetAllPlaylist():
                     tracks['track_uuid'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+str(track)
                     all_tracks.append(tracks)
                 output['all_tracks'] = all_tracks
-                resp = jsonify(output)
+                result = []
+                result.append(output)
+                resp = jsonify(result)
 
                 resp.headers['Location']='http://127.0.0.1:5300/api/v1/resources/playlist?playlist_id='+playlist_id
                 resp.status_code = 200
                 return resp
 
         elif username:
-            query = "SELECT playlist_title,username,description FROM playlist WHERE username=%s ALLOW FILTERING;"
+            query = "SELECT playlist_id,playlist_title,username,description FROM playlist WHERE username=%s ALLOW FILTERING;"
             to_filter.append(username)
             results = session.execute(query, (username,))
             rv=list()
@@ -217,7 +219,7 @@ def GetAllPlaylist():
                 resp.status_code = 200
                 return resp
         else:
-            query = "SELECT playlist_title,username,description FROM playlist;"
+            query = "SELECT playlist_idplaylist_title,username,description FROM playlist;"
 
             rv=list()
             rows = session.execute(query)
