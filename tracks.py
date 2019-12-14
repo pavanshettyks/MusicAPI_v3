@@ -87,7 +87,7 @@ def query_db(track_uuid,query,args=(),one=False):
         #cur.close()
         if not row:
             return False
-        return(row[0])
+        return row
     else :
         rv=list()
         rows = session.execute(query, args)
@@ -174,7 +174,7 @@ def GetTrack():
     if not results:
         return jsonify(message="No track present"),404
     else:
-        resp = jsonify(results)
+        resp = jsonify(list(results))
         resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks'
         resp.status_code = 200
         return resp
