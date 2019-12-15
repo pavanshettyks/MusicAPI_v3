@@ -20,7 +20,7 @@
   stages:
     - name: retrieve playlist
       request:
-        url: http://127.0.0.1:5300/api/v1/resources/playlist?playlist_title=All&username=user_priyanka
+        url: http://127.0.0.1:5300/api/v1/resources/playlist?playlist_id=a1f9d26facbd48cdb6e57b52caae73e7
         method: GET
       response:
         status_code: 200
@@ -29,7 +29,7 @@
   stages:
     - name: delete playlist
       request:
-        url: http://127.0.0.1:5300/api/v1/resources/playlist?username=user_priyanka&playlist_title=All
+        url: http://127.0.0.1:5300/api/v1/resources/playlist?playlist_id=a1f9d26facbd48cdb6e57b52caae73e7
         method: DELETE
       response:
         status_code: 200

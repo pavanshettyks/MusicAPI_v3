@@ -12,7 +12,7 @@
       response:
         status_code: 201
 ---
-  test_name: set invalid users description of track
+  test_name: set invalid track description of track
   stages:
     - name: set description
       request:
@@ -20,7 +20,7 @@
         method: POST
         json:
           username: user_invalid
-          track_uuid: 275fc399a955403dacb158cdb6f273b5
+          track_uuid: 276fc399a955403dacb158cdb6f273b5
           description: Looks good
       response:
         status_code: 409
@@ -34,11 +34,11 @@
       response:
         status_code: 200
 ---
-  test_name: retrieve invalid users track description
+  test_name: retrieve invalid track track description
   stages:
     - name: retrieve description
       request:
-        url: http://127.0.0.1:5100/api/v1/resources/descriptions?username=user_invalid&track_uuid=275fc399a955403dacb158cdb6f273b5
+        url: http://127.0.0.1:5100/api/v1/resources/descriptions?username=user_invalid&track_uuid=276fc399a955403dacb158cdb6f273b5
         method: GET
       response:
         status_code: 404

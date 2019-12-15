@@ -1,12 +1,14 @@
 from flask import  Flask, request, jsonify, g
 import sqlite3
 import uuid
-
+from cassandra.cluster import Cluster
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
-sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
-sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
+cluster = Cluster(['172.17.0.2'], port=9042)
+session = cluster.connect('music_store')
+# sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+# sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
 
 
 
@@ -79,17 +81,28 @@ def get_shard(shard_key):
 
 def query_db(track_uuid,query,args=(),one=False):
     if track_uuid:
-        cur = get_db(get_shard(uuid.UUID(track_uuid).int)).execute(query,args)
-        rv = cur.fetchall()
-        cur.close()
-        return(rv[0] if rv else None) if one else rv
+        row = session.execute(query, args)
+        #cur = get_db(get_shard(uuid.UUID(track_uuid).int)).execute(query,args)
+        #rv = cur.fetchall()
+        #cur.close()
+        if not row:
+            return False
+        return row
     else :
-        rv=list();
-        for x in range(0,3):
-            cur = get_db(get_shard(x)).execute(query,args)
-            rv += cur.fetchall()
-            cur.close()
-        return(rv[0] if rv else None) if one else rv
+        rv=list()
+        rows = session.execute(query, args)
+        for row in rows:
+            output={row}
+            rv += output
+        return(rv)
+        # rv=list();
+        # for x in range(0,3):
+        #     cur = get_db(get_shard(x)).execute(query,args)
+        #     rv += cur.fetchall()
+        #     cur.close()
+        # return(rv[0] if rv else None) if one else rv
+
+
 
 
 
@@ -100,6 +113,8 @@ def GetTrack():
 #    track = '275fc399-a955-403d-acb1-58cdb6f273b5'
 #   print("dddddddddddddddD")
 #    print(uuid.UUID(track).hex)
+
+
     query_parameters = request.args
     track_title = query_parameters.get('track_title')
     album_title = query_parameters.get('album_title')
@@ -111,42 +126,45 @@ def GetTrack():
     hasuuid = False;
 
     #invalid uuid
-    if track_uuid and len(track_uuid)!=32:
-        return jsonify("No track present"),404
+    if track_uuid and not(len(track_uuid)==32 or len(track_uuid)==36):
+        return jsonify(message="No track present"),404
 
-    query = "SELECT * FROM tracks WHERE"
+    query = "SELECT track_title, album_title, artist, length, track_url, album_art_url, track_uuid FROM tracks WHERE"
     to_filter = []
     #print('test',track_uuid )
 
     if track_title:
-        query += ' track_title=? AND'
+        query += ' track_title= %s AND'
         to_filter.append(track_title)
 
     if album_title:
-        query += ' album_title=? AND'
+        query += ' album_title= %s AND'
         to_filter.append(album_title)
 
     if artist:
-        query += ' artist=? AND'
+        query += ' artist= %s AND'
         to_filter.append(artist)
 
     if length:
-        query += ' length=? AND'
+        query += ' length= %s AND'
         to_filter.append(length)
 
     if album_art_url:
-        query += ' album_art_url=? AND'
+        query += ' album_art_url= %s AND'
         to_filter.append(album_art_url)
 
     if track_url:
-        query += ' track_url=? AND'
+        query += ' track_url= %s AND'
         to_filter.append(track_url)
 
     if track_uuid:
-        query += ' track_uuid=? AND'
-        to_filter.append(uuid.UUID(track_uuid).hex)
+        #track_uuid = uuid.UUID(track_uuid).hex
+        query += ' track_uuid= %s AND'
+        to_filter.append(uuid.UUID(track_uuid))
         print("checkpoint")
         hasuuid=True
+    else:
+        query = "SELECT track_title, album_title, artist, length, track_url, album_art_url, track_uuid FROM tracks    "
 
 
 
@@ -154,9 +172,9 @@ def GetTrack():
     #print('query',query)
     results = query_db(track_uuid, query, to_filter)
     if not results:
-        return jsonify("No track present"),404
+        return jsonify(message="No track present"),404
     else:
-        resp = jsonify(results)
+        resp = jsonify(list(results))
         resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks'
         resp.status_code = 200
         return resp
@@ -175,24 +193,28 @@ def InsertTrack():
         album_art_url = data['album_art_url']
         track_uuid = uuid.uuid4()
 
+
         executionState:bool = False
 
         if track_url:
 
-            query ="INSERT INTO tracks(track_title, album_title, artist, length, track_url, album_art_url, track_uuid) VALUES('"+track_title+"','"+album_title+"','"+artist+"','"+length+"','"+track_url+"','"+album_art_url+"','"+track_uuid.hex+"');"
+            #query ="INSERT INTO tracks(track_title, album_title, artist, length, track_url, album_art_url, track_uuid) VALUES('"+track_title+"','"+album_title+"','"+artist+"','"+length+"','"+track_url+"','"+album_art_url+"','"+track_uuid.hex+"');"
+            query ="INSERT INTO tracks(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions, length) VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
+            descriptions = {}
             print(query)
-            cur = get_db(get_shard(track_uuid.int)).cursor()
+            #cur = get_db(get_shard(track_uuid.int)).cursor()
             try:
-                cur.execute(query)
-                if(cur.rowcount >=1):
-                    executionState = True
-                get_db(get_shard(track_uuid.int)).commit()
+                session.execute(query,(track_title, album_title, artist, track_url, album_art_url, track_uuid, descriptions, int(length)))
+                #if(cur.rowcount >=1):
+                executionState = True
+                #get_db(get_shard(track_uuid.int)).commit()
             except:
-                get_db(get_shard(track_uuid.int)).rollback()
+                executionState = False
+                # get_db(get_shard(track_uuid.int)).rollback()
                 print("Error")
             finally:
                 if executionState:
-                    resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex, shard=get_shard(track_uuid.int))
+                    resp = jsonify(message="track inserted successfully", uuid=track_uuid.hex)
                     resp.headers['Location'] = 'http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid='+track_uuid.hex
                     resp.status_code = 201
                     return resp
@@ -218,19 +240,23 @@ def EditTrack():
             album_art_url = data['album_art_url']
             query_parameters = request.args
             track_uuid_param = query_parameters.get('track_uuid')
+            descriptions = {}
 
             executionState:bool = False
             if track_uuid == track_uuid_param:
-                query ="UPDATE tracks SET track_title='"+track_title+"', album_title='"+album_title+"', artist='"+artist+"', length='"+length+"', album_art_url='"+album_art_url+"'  WHERE track_uuid='"+uuid.UUID(track_uuid).hex+"';"
+                #query ="UPDATE tracks SET track_title='"+track_title+"', album_title='"+album_title+"', artist='"+artist+"', length='"+length+"', album_art_url='"+album_art_url+"'  WHERE track_uuid='"+uuid.UUID(track_uuid).hex+"';"
+                query ="UPDATE music_store.tracks SET track_title= %s, album_title= %s, artist= %s, album_art_url= %s, descriptions= %s  WHERE track_uuid= %s;"
+
                 print(query)
-                cur = get_db(get_shard(uuid.UUID(track_uuid).int)).cursor()
+                #cur = get_db(get_shard(uuid.UUID(track_uuid).int)).cursor()
                 try:
-                    cur.execute(query)
-                    if(cur.rowcount >=1):
-                        executionState = True
-                    get_db(get_shard(uuid.UUID(track_uuid).int)).commit()
+                    session.execute(query,(track_title, album_title, artist, album_art_url, descriptions, uuid.UUID(track_uuid)))
+                    #if(cur.rowcount >=1):
+                    executionState = True
+                    #get_db(get_shard(uuid.UUID(track_uuid).int)).commit()
                 except:
-                    get_db(get_shard(uuid.UUID(track_uuid).int)).rollback()
+                    executionState = False
+                    #get_db(get_shard(uuid.UUID(track_uuid).int)).rollback()
                 finally:
                     if executionState:
                         resp = jsonify(message="Data updated successfully")
@@ -241,7 +267,7 @@ def EditTrack():
                     else:
                         return jsonify(message="Failed to edit data"), 409
             else:
-                return jsonify(message="Failed to edit data"), 409
+                return jsonify(message="Failed to edit data non matching uuid parameters"), 409
 
 
 
@@ -252,16 +278,16 @@ def DeleteTrack():
         query_parameters = request.args
         track_uuid = uuid.UUID(query_parameters.get('track_uuid'))
         executionState:bool = False
-        cur = get_db(get_shard(track_uuid.int)).cursor()
+        #cur = get_db(get_shard(track_uuid.int)).cursor()
         try:
-            cur.execute("DELETE FROM tracks WHERE track_uuid=?",(track_uuid.hex,))
-
-            if cur.rowcount >= 1:
-                executionState = True
-            get_db(get_shard(track_uuid.int)).commit()
+            session.execute("DELETE FROM tracks WHERE track_uuid= %s",(track_uuid,))
+            #if cur.rowcount >= 1:
+            executionState = True
+            #get_db(get_shard(track_uuid.int)).commit()
 
         except:
-            get_db(get_shard(track_uuid.int)).rollback()
+            executionState = False
+            #get_db(get_shard(track_uuid.int)).rollback()
             print("Error")
         finally:
             if executionState:

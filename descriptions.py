@@ -1,10 +1,13 @@
 from flask import  Flask, request, jsonify, g
-
+from cassandra.cluster import Cluster
 import sqlite3
+import uuid
 
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+cluster = Cluster(['172.17.0.2'], port=9042)
+session = cluster.connect('music_store')
 
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
@@ -45,63 +48,79 @@ def init_db():
 #  To get user Description
 @app.route('/api/v1/resources/descriptions',methods=['GET'])
 def GetDescription():
-        if request.method == 'GET':
-            query_parameters = request.args
-            username = query_parameters.get('username')
-            track_uuid = query_parameters.get('track_uuid')
-            to_filter = []
-            if username and track_uuid:
-                #call the db and check user's is present and get the description
-                query = "SELECT username,track_uuid,description FROM description WHERE username=? AND  track_uuid=? ;"
-                to_filter.append(username)
-                to_filter.append(track_uuid)
-                results = query_db(query, to_filter)
-                if not results:
-                    return jsonify(message="No description present"),404
-                else:
-                    resp = jsonify(results)
-                    resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
-                    resp.status_code = 200
-                    return resp
+    if request.method == 'GET':
+        query_parameters = request.args
+        username = query_parameters.get('username')
+        track_uuid = uuid.UUID(query_parameters.get('track_uuid')).hex
+        #return jsonify(uuid.UUID(track_uuid)),404
+        to_filter = []
+        if username and track_uuid:
+            #call the db and check user's is present and get the description
+            query = "SELECT descriptions FROM tracks WHERE track_uuid=%s ;"
+            #to_filter.append(username)
+            #to_filter.append(track_uuid)
+
+            results = session.execute(query, (uuid.UUID(track_uuid), ))
+            if not results:
+                return jsonify(message="No description present"),404
+            result=results[0]
+            result= result.descriptions
+            desc = None
+            if result and username in result:
+                desc= result[username]
+            if desc == None:
+                return jsonify(message="No description present"),404
+            else:
+                output={}
+                output['username']=username
+                output['description']=desc
+                result = []
+                result.append(output)
+                resp = jsonify(result)
+                resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
+                resp.status_code = 200
+                return resp
 
 
 
 #TO create new description
 @app.route('/api/v1/resources/descriptions',methods=['POST'])
-def InserUser():
-        if request.method == 'POST':
-            data =request.get_json(force= True)
-            to_filter = []
-            username = data['username']
-            track_uuid = data['track_uuid']
-            description = data['description']
-            executionState:bool = False
-            query = "SELECT username,track_uuid,description FROM description WHERE username=? AND  track_uuid=? ;"
-            to_filter.append(username)
-            to_filter.append(track_uuid)
-            results = query_db(query, to_filter)
-            if not results:
-                query ="INSERT INTO description(username, track_uuid, description) VALUES('"+username+"','"+track_uuid+"','"+description+"');"
-                print(query)
-                cur = get_db().cursor()
-                try:
-                    cur.execute(query)
-                    if(cur.rowcount >=1):
-                        executionState = True
-                    get_db().commit()
-                except:
-                    get_db().rollback()
-                    print("Error")
-                finally:
-                    if executionState:
-                        resp = jsonify(message="Data Instersted Sucessfully")
-                        resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
-                        resp.status_code = 201
-                        return resp
-                    else:
-                        return jsonify(message="Failed to insert data"), 409
-            else:
-                return jsonify(message="Failed to insert data."), 409
+def InserDesc():
+    if request.method == 'POST':
+        data =request.get_json(force= True)
+        to_filter = []
+        username = data['username']
+        track_uuid = data['track_uuid']
+        description = data['description']
+        executionState:bool = False
+        query = "SELECT * FROM tracks WHERE track_uuid= %s;"
+        results = session.execute(query, (uuid.UUID(track_uuid), ))
+        if results:
+            #query ="INSERT INTO (username, track_uuid, description) VALUES('"+username+"','"+track_uuid+"','"+description+"');"
+            query ="UPDATE tracks SET descriptions = descriptions + { %s: %s } WHERE track_uuid = %s;"
+
+            print(query)
+            #cur = get_db().cursor()
+            try:
+                session.execute(query,(username, description, uuid.UUID(track_uuid)))
+                #if(cur.rowcount >=1):
+                #    executionState = True
+                #get_db().commit()
+                executionState = True
+            except:
+                # get_db().rollback()
+                executionState = False
+                print("Error")
+            finally:
+                if executionState:
+                    resp = jsonify(message="Data Instersted Sucessfully")
+                    resp.headers['Location'] = 'http://127.0.0.1:5100/api/v1/resources/descriptions?username='+username+'&'+'track_uuid='+track_uuid
+                    resp.status_code = 201
+                    return resp
+                else:
+                    return jsonify(message="Failed to insert data"), 409
+        else:
+            return jsonify(message="Failed to insert data. Track does not exist"), 409
 
 
 app.run()

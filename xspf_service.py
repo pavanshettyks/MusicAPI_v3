@@ -60,8 +60,8 @@ def Convert_JsonToXSPF(json_value):
                 image=track_details['image'])
     return str.encode('<?xml version="1.0" encoding="UTF-8"?>')+x.toXml()
 
-def serviceCallsToGetXSPF(playlist_title,username):
-    playlist_service_resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_title='+playlist_title+'&username='+username)
+def serviceCallsToGetXSPF(playlist_id):
+    playlist_service_resp = requests.get('http://localhost:8000/api/v1/resources/playlist?playlist_id='+playlist_id)
     if playlist_service_resp.status_code != 200:
         return None#jsonify(message="Playlist not found"),404
     playlist_resp = playlist_service_resp.json()
@@ -105,14 +105,14 @@ def serviceCallsToGetXSPF(playlist_title,username):
 @app.route('/api/v1/resources/music.xspf',methods=['GET'])
 def Generate_XSPF():
     query_parameters = request.args
-    playlist_title= query_parameters.get('playlist_title')
-    username = query_parameters.get('username')
+    playlist_id= query_parameters.get('playlist_id')
+    #username = query_parameters.get('username')
     client = base.Client(('localhost', 11211))
-    key = username+playlist_title
+    key = playlist_id
     playlist_json = client.get(key)
     if not playlist_json:
         print("calling services..................")
-        playlist_json = serviceCallsToGetXSPF(playlist_title,username)
+        playlist_json = serviceCallsToGetXSPF(playlist_id)
         if playlist_json:
             client.set(str(key), playlist_json,expire =60)
         else:
