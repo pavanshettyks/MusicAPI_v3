@@ -83,22 +83,6 @@
     response:
       status_code: 201
 ---
-  test_name: Create a user profile using a taken username
-  stages:
-  - name: Create a new User profile
-    request:
-      url: http://127.0.0.1:5000/api/v1/resources/user
-      method: POST
-      json:
-        username: joker12
-        display_name: Joker
-        password: serious
-        homepage_url: joker.com
-        email: joker@joker.com
-
-    response:
-      status_code: 409
----
   test_name: Change users password
   stages:
   - name: change password
@@ -131,12 +115,4 @@
       method: DELETE
     response:
       status_code: 200
----
-  test_name: Delete a invalid user
-  stages:
-  - name: Delete user
-    request:
-      url: http://127.0.0.1:5000/api/v1/resources/user?username=user_invalid
-      method: DELETE
-    response:
-      status_code: 404
+

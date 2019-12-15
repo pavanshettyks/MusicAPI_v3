@@ -17,15 +17,6 @@
       response:
         status_code: 200
 ---
-  test_name: retrieve particular invalid track
-  stages:
-    - name: retrieve track
-      request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_url=mp3
-        method: GET
-      response:
-        status_code: 404
----
   test_name: create a new track
   stages:
     - name: create track
