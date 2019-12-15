@@ -54,7 +54,7 @@
   stages:
     - name: delete track
       request:
-        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=275fc399a955403dacb158cdb6f273b5
+        url: http://127.0.0.1:5200/api/v1/resources/tracks?track_uuid=65bf675850f04c9f937e0b453721def6
         method: DELETE
       response:
         status_code: 200

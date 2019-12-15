@@ -74,7 +74,7 @@
       url: http://127.0.0.1:5000/api/v1/resources/user
       method: POST
       json:
-        username: joker12
+        username: joker1256
         display_name: Joker
         password: serious
         homepage_url: joker.com
@@ -87,7 +87,7 @@
   stages:
   - name: change password
     request:
-      url: http://127.0.0.1:5000/api/v1/resources/user?username=joker12
+      url: http://127.0.0.1:5000/api/v1/resources/user?username=joker1256
       method: PATCH
       json:
         password: serious123
@@ -111,8 +111,7 @@
   stages:
   - name: Delete user
     request:
-      url: http://127.0.0.1:5000/api/v1/resources/user?username=joker12
+      url: http://127.0.0.1:5000/api/v1/resources/user?username=joker1256
       method: DELETE
     response:
       status_code: 200
-
